@@ -25,6 +25,13 @@ import { Account, Address, AddressInput, Contract, Faucet, GasGauge, Header, Ram
 import { INFURA_ID, NETWORK, NETWORKS } from "./constants";
 import { Transactor } from "./helpers";
 import { useContractConfig } from "./hooks";
+import { Configuration, OpenAIApi } from "openai";
+
+const openAiKey = process.env.REACT_APP_OPENAI_KEY;
+const configuration = new Configuration({
+  apiKey: openAiKey,
+});
+const openai = new OpenAIApi(configuration);
 
 const projectId = "2GajDLTC6y04qsYsoDRq9nGmWwK";
 const projectSecret = "48c62c6b3f82d2ecfa2cbe4c90f97037";
@@ -113,8 +120,8 @@ const scaffoldEthProvider = navigator.onLine
   : null;
 const poktMainnetProvider = navigator.onLine
   ? new ethers.providers.StaticJsonRpcProvider(
-      "https://eth-mainnet.gateway.pokt.network/v1/lb/611156b4a585a20035148406",
-    )
+    "https://eth-mainnet.gateway.pokt.network/v1/lb/611156b4a585a20035148406",
+  )
   : null;
 const mainnetInfura = navigator.onLine
   ? new ethers.providers.StaticJsonRpcProvider("https://mainnet.infura.io/v3/" + INFURA_ID)
@@ -197,11 +204,16 @@ function App() {
     poktMainnetProvider && poktMainnetProvider._isProvider
       ? poktMainnetProvider
       : scaffoldEthProvider && scaffoldEthProvider._network
-      ? scaffoldEthProvider
-      : mainnetInfura;
+        ? scaffoldEthProvider
+        : mainnetInfura;
 
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
+  const [inputValue, setInputValue] = useState("");
+
+  function handleInputChange(event) {
+    setInputValue(event.target.value);
+  }
 
   const logoutOfWeb3Modal = async () => {
     await web3Modal.clearCachedProvider();
@@ -642,27 +654,43 @@ function App() {
     },
   };
 
-  const mintItem = async () => {
-    // upload to ipfs
+  const mintItem = async ({ inputValue }) => {
+    // const response = await openai.createImage({
+    //   prompt: inputValue + "with Mars in universe as background, profile picture, digital art",
+    //   n: 1,
+    //   size: "256x256",
+    // });
+    // const openAiImgUrl = response.data.data[0].url;
+    // console.log("openAiImgUrl", openAiImgUrl);
+    // const openAiJson =
+    // {
+    //   description: inputValue,
+    //   external_url: "https://austingriffith.com/portfolio/paintings/", // <-- this can link to a page for the specific file too
+    //   image: openAiImgUrl,
+    //   name: inputValue,
+    // }
+    // console.log("openAiJson", openAiJson);
+    // const uploaded = await ipfs.add(JSON.stringify(openAiJson);
     const uploaded = await ipfs.add(JSON.stringify(json[count]));
     setCount(count + 1);
     console.log("Uploaded Hash: ", uploaded);
+    console.log("uploaded", uploaded);
     const result = tx(
       writeContracts &&
-        writeContracts.YourCollectible &&
-        writeContracts.YourCollectible.mintItem(address, uploaded.path),
+      writeContracts.YourCollectible &&
+      writeContracts.YourCollectible.mintItem(address, uploaded.path),
       update => {
         console.log("📡 Transaction Update:", update);
         if (update && (update.status === "confirmed" || update.status === 1)) {
           console.log(" 🍾 Transaction " + update.hash + " finished!");
           console.log(
             " ⛽️ " +
-              update.gasUsed +
-              "/" +
-              (update.gasLimit || update.gas) +
-              " @ " +
-              parseFloat(update.gasPrice) / 1000000000 +
-              " gwei",
+            update.gasUsed +
+            "/" +
+            (update.gasLimit || update.gas) +
+            " @ " +
+            parseFloat(update.gasPrice) / 1000000000 +
+            " gwei",
           );
         }
       },
@@ -730,12 +758,14 @@ function App() {
         <Switch>
           <Route exact path="/">
             <div style={{ width: 640, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
+              <input type="text" value={inputValue} onChange={handleInputChange} />
               <Button
                 disabled={minting}
                 shape="round"
                 size="large"
                 onClick={() => {
-                  mintItem();
+                  mintItem(inputValue);
+                  console.log("input value", inputValue);
                 }}
               >
                 MINT NFT
@@ -958,7 +988,7 @@ function App() {
           </Col>
         </Row>
       </div>
-    </div>
+    </div >
   );
 }
 
