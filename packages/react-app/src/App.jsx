@@ -212,9 +212,9 @@ function App() {
   const [address, setAddress] = useState();
   const [inputValue, setInputValue] = useState("");
 
-  function handleInputChange(event) {
-    setInputValue(event.target.value);
-  }
+  // function handleInputChange(event) {
+  //   setInputValue(event.target.value);
+  // }
 
   const logoutOfWeb3Modal = async () => {
     await web3Modal.clearCachedProvider();
@@ -534,20 +534,31 @@ function App() {
   // the json for the nfts
   const getJson = async (useOpenAi) => {
     if (useOpenAi == true) {
-      const response = await openai.createImage({
-        prompt: inputValue + "with Mars in universe as background, profile picture, digital art",
-        n: 1,
-        size: "256x256",
-      });
-      const openAiImgUrl = response.data.data[0].url;
-      console.log("openAiImgUrl", openAiImgUrl);
+
+      // const response = await openai.createImage({
+      //   prompt: inputValue + "with Mars in universe as background, profile picture, digital art",
+      //   n: 1,
+      //   size: "256x256",
+      // });
+      // const openAiImgUrl = response.data.data[0].url;
+      // console.log("openAiImgUrl", openAiImgUrl);
+      // const openAiJson =
+      // {
+      //   description: inputValue,
+      //   external_url: "https://austingriffith.com/portfolio/paintings/", // <-- this can link to a page for the specific file too
+      //   image: openAiImgUrl,
+      //   name: inputValue,
+      // }
+
+      ///////////////// save myself 2 cents per test! dang!
       const openAiJson =
       {
         description: inputValue,
-        external_url: "https://austingriffith.com/portfolio/paintings/", // <-- this can link to a page for the specific file too
-        image: openAiImgUrl,
+        image: "https://oaidalleapiprodscus.blob.core.windows.net/private/org-8dxGzkOwVMRgG4M3qcGI1Qe6/user-dMBC7KZSUfizzX6qevnhuqFN/img-B9PuSyodqOz9YeCRjihXrGfz.png?st=2023-04-25T04%3A14%3A51Z&se=2023-04-25T06%3A14%3A51Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2023-04-25T05%3A13%3A52Z&ske=2023-04-26T05%3A13%3A52Z&sks=b&skv=2021-08-06&sig=0WjfYRruQHk3xZre/4/G3n/UX9iivpHn49EzT5c0haI%3D",
         name: inputValue,
       }
+      ///////////////// save myself 2 cents per test! dang!
+
       console.log("openAiJson", openAiJson);
       return openAiJson;
 
@@ -655,7 +666,12 @@ function App() {
         <Switch>
           <Route exact path="/">
             <div style={{ width: 640, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
-              <input type="text" value={inputValue} onChange={handleInputChange} />
+              {/* <Input type="text" placeholder="What to generate?" value={inputValue} onChange={handleInputChange} maxLength={30} /> */}
+              <Input type="text"
+                placeholder="What NFT do you want OpenAI to generate?"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                maxLength={30} />
               <Button
                 disabled={minting}
                 shape="round"
@@ -676,7 +692,7 @@ function App() {
                   const id = item.id.toNumber();
                   return (
                     <List.Item key={id + "_" + item.uri + "_" + item.owner}>
-                      <Card
+                      <Card className="card"
                         title={
                           <div>
                             <span style={{ fontSize: 16, marginRight: 8 }}>#{id}</span> {item.name}
@@ -684,9 +700,9 @@ function App() {
                         }
                       >
                         <div>
-                          <img src={item.image} style={{ maxWidth: 150 }} />
+                          <img src={item.image} style={{ maxWidth: 200 }} />
                         </div>
-                        <div>{item.description}</div>
+                        {/* <div>{item.description}</div> */}
                       </Card>
 
                       <div>
@@ -831,7 +847,7 @@ function App() {
       <ThemeSwitch />
 
       {/* 👨‍💼 Your account is in the top right with a wallet at connect options */}
-      <div style={{ position: "fixed", textAlign: "right", right: 0, top: 0, padding: 10 }}>
+      <div style={{ position: "absolute", textAlign: "right", right: 0, top: 0, padding: 10 }}>
         <Account
           address={address}
           localProvider={localProvider}

@@ -1,7 +1,20 @@
 body {
   margin: 0;
+
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+
+.card {
+  width: 300px;
+  height: 300px;
+}
+
+.description {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
