@@ -16,6 +16,7 @@ contract YourCollectible is
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;
+    uint256 public mintPrice = 0.1 ether;
 
     constructor() ERC721("GenerativeAvatar", "gAvatar") {}
 
@@ -23,11 +24,16 @@ contract YourCollectible is
         return "https://ipfs.io/ipfs/";
     }
 
-    function mintItem(address to, string memory uri) public returns (uint256) {
+    function mintItem(
+        address to,
+        string memory uri
+    ) public payable returns (uint256) {
+        //require(mintPrice <= msg.value, "Ether value sent is not correct");
         _tokenIdCounter.increment();
         uint256 tokenId = _tokenIdCounter.current();
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
+
         return tokenId;
     }
 

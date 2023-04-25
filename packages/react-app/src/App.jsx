@@ -22,10 +22,11 @@ import WalletLink from "walletlink";
 import Web3Modal from "web3modal";
 import "./App.css";
 import { Account, Address, AddressInput, Contract, Faucet, GasGauge, Header, Ramp, ThemeSwitch } from "./components";
-import { INFURA_ID, NETWORK, NETWORKS } from "./constants";
+import { INFURA_ID, NETWORK, NETWORKS, austinJson } from "./constants";
 import { Transactor } from "./helpers";
 import { useContractConfig } from "./hooks";
 import { Configuration, OpenAIApi } from "openai";
+import staticjson from "."
 
 const openAiKey = process.env.REACT_APP_OPENAI_KEY;
 const configuration = new Configuration({
@@ -531,147 +532,43 @@ function App() {
   const [count, setCount] = useState(1);
 
   // the json for the nfts
-  const json = {
-    1: {
-      description: "It's actually a bison?",
-      external_url: "https://austingriffith.com/portfolio/paintings/", // <-- this can link to a page for the specific file too
-      image: "https://austingriffith.com/images/paintings/buffalo.jpg",
-      name: "Buffalo",
-      attributes: [
-        {
-          trait_type: "BackgroundColor",
-          value: "green",
-        },
-        {
-          trait_type: "Eyes",
-          value: "googly",
-        },
-        {
-          trait_type: "Stamina",
-          value: 42,
-        },
-      ],
-    },
-    2: {
-      description: "What is it so worried about?",
-      external_url: "https://austingriffith.com/portfolio/paintings/", // <-- this can link to a page for the specific file too
-      image: "https://austingriffith.com/images/paintings/zebra.jpg",
-      name: "Zebra",
-      attributes: [
-        {
-          trait_type: "BackgroundColor",
-          value: "blue",
-        },
-        {
-          trait_type: "Eyes",
-          value: "googly",
-        },
-        {
-          trait_type: "Stamina",
-          value: 38,
-        },
-      ],
-    },
-    3: {
-      description: "What a horn!",
-      external_url: "https://austingriffith.com/portfolio/paintings/", // <-- this can link to a page for the specific file too
-      image: "https://austingriffith.com/images/paintings/rhino.jpg",
-      name: "Rhino",
-      attributes: [
-        {
-          trait_type: "BackgroundColor",
-          value: "pink",
-        },
-        {
-          trait_type: "Eyes",
-          value: "googly",
-        },
-        {
-          trait_type: "Stamina",
-          value: 22,
-        },
-      ],
-    },
-    4: {
-      description: "Is that an underbyte?",
-      external_url: "https://austingriffith.com/portfolio/paintings/", // <-- this can link to a page for the specific file too
-      image: "https://austingriffith.com/images/paintings/fish.jpg",
-      name: "Fish",
-      attributes: [
-        {
-          trait_type: "BackgroundColor",
-          value: "blue",
-        },
-        {
-          trait_type: "Eyes",
-          value: "googly",
-        },
-        {
-          trait_type: "Stamina",
-          value: 15,
-        },
-      ],
-    },
-    5: {
-      description: "So delicate.",
-      external_url: "https://austingriffith.com/portfolio/paintings/", // <-- this can link to a page for the specific file too
-      image: "https://austingriffith.com/images/paintings/flamingo.jpg",
-      name: "Flamingo",
-      attributes: [
-        {
-          trait_type: "BackgroundColor",
-          value: "black",
-        },
-        {
-          trait_type: "Eyes",
-          value: "googly",
-        },
-        {
-          trait_type: "Stamina",
-          value: 6,
-        },
-      ],
-    },
-    6: {
-      description: "Raaaar!",
-      external_url: "https://austingriffith.com/portfolio/paintings/", // <-- this can link to a page for the specific file too
-      image: "https://austingriffith.com/images/paintings/godzilla.jpg",
-      name: "Godzilla",
-      attributes: [
-        {
-          trait_type: "BackgroundColor",
-          value: "orange",
-        },
-        {
-          trait_type: "Eyes",
-          value: "googly",
-        },
-        {
-          trait_type: "Stamina",
-          value: 99,
-        },
-      ],
-    },
-  };
+  const getJson = async (useOpenAi) => {
+    if (useOpenAi == true) {
+      const response = await openai.createImage({
+        prompt: inputValue + "with Mars in universe as background, profile picture, digital art",
+        n: 1,
+        size: "256x256",
+      });
+      const openAiImgUrl = response.data.data[0].url;
+      console.log("openAiImgUrl", openAiImgUrl);
+      const openAiJson =
+      {
+        description: inputValue,
+        external_url: "https://austingriffith.com/portfolio/paintings/", // <-- this can link to a page for the specific file too
+        image: openAiImgUrl,
+        name: inputValue,
+      }
+      console.log("openAiJson", openAiJson);
+      return openAiJson;
 
+    } else {
+      return austinJson;
+    }
+  }
+
+  const useOpenAi = true;
   const mintItem = async ({ inputValue }) => {
-    // const response = await openai.createImage({
-    //   prompt: inputValue + "with Mars in universe as background, profile picture, digital art",
-    //   n: 1,
-    //   size: "256x256",
-    // });
-    // const openAiImgUrl = response.data.data[0].url;
-    // console.log("openAiImgUrl", openAiImgUrl);
-    // const openAiJson =
-    // {
-    //   description: inputValue,
-    //   external_url: "https://austingriffith.com/portfolio/paintings/", // <-- this can link to a page for the specific file too
-    //   image: openAiImgUrl,
-    //   name: inputValue,
-    // }
-    // console.log("openAiJson", openAiJson);
-    // const uploaded = await ipfs.add(JSON.stringify(openAiJson);
-    const uploaded = await ipfs.add(JSON.stringify(json[count]));
+
+    let uploaded;
+    if (useOpenAi == true) {
+      const json = await getJson(useOpenAi);
+      uploaded = await ipfs.add(JSON.stringify(json));
+    }
+    else {
+      const json = await getJson(useOpenAi);
+      uploaded = await ipfs.add(JSON.stringify(json[count]));
+    }
+
     setCount(count + 1);
     console.log("Uploaded Hash: ", uploaded);
     console.log("uploaded", uploaded);
