@@ -26,7 +26,7 @@ import { INFURA_ID, NETWORK, NETWORKS, austinJson } from "./constants";
 import { Transactor } from "./helpers";
 import { useContractConfig } from "./hooks";
 import { Configuration, OpenAIApi } from "openai";
-import staticjson from "."
+import { PulseLoader } from 'react-spinners';
 
 const openAiKey = process.env.REACT_APP_OPENAI_KEY;
 const configuration = new Configuration({
@@ -211,6 +211,7 @@ function App() {
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
   const [inputValue, setInputValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   // function handleInputChange(event) {
   //   setInputValue(event.target.value);
@@ -551,12 +552,12 @@ function App() {
       // }
 
       ///////////////// save myself 2 cents per test! dang!
-      const openAiJson =
-      {
-        description: inputValue,
-        image: "https://oaidalleapiprodscus.blob.core.windows.net/private/org-8dxGzkOwVMRgG4M3qcGI1Qe6/user-dMBC7KZSUfizzX6qevnhuqFN/img-B9PuSyodqOz9YeCRjihXrGfz.png?st=2023-04-25T04%3A14%3A51Z&se=2023-04-25T06%3A14%3A51Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2023-04-25T05%3A13%3A52Z&ske=2023-04-26T05%3A13%3A52Z&sks=b&skv=2021-08-06&sig=0WjfYRruQHk3xZre/4/G3n/UX9iivpHn49EzT5c0haI%3D",
-        name: inputValue,
-      }
+      // const openAiJson =
+      // {
+      //   description: inputValue,
+      //   image: "https://austingriffith.com/images/paintings/buffalo.jpg",
+      //   name: inputValue,
+      // }
       ///////////////// save myself 2 cents per test! dang!
 
       console.log("openAiJson", openAiJson);
@@ -569,7 +570,7 @@ function App() {
 
   const useOpenAi = true;
   const mintItem = async ({ inputValue }) => {
-
+    setIsLoading(true);
     let uploaded;
     if (useOpenAi == true) {
       const json = await getJson(useOpenAi);
@@ -603,6 +604,7 @@ function App() {
         }
       },
     );
+    setIsLoading(false);
   };
 
   return (
@@ -681,7 +683,7 @@ function App() {
                   console.log("input value", inputValue);
                 }}
               >
-                MINT NFT
+                {isLoading ? <PulseLoader size={10} margin={2} /> : 'MINT NFT'}
               </Button>
             </div>
             <div style={{ width: 640, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
