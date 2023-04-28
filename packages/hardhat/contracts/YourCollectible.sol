@@ -16,7 +16,8 @@ contract YourCollectible is
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;
-    uint256 public mintPrice = 0.1 ether;
+
+    //uint256 public mintPrice = 0.1 ether;
 
     constructor() ERC721("GenerativeAvatar", "gAvatar") {}
 

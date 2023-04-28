@@ -70,7 +70,7 @@ const { ethers } = require("ethers");
 */
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS.sepolia; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
@@ -532,25 +532,42 @@ function App() {
   const [minting, setMinting] = useState(false);
   const [count, setCount] = useState(1);
 
+  const defaultPromt = "a cute cat sitting on laptop";
   // the json for the nfts
   const getJson = async (useOpenAi) => {
-    if (useOpenAi == true) {
-
-      // const response = await openai.createImage({
-      //   prompt: inputValue + "with Mars in universe as background, profile picture, digital art",
-      //   n: 1,
-      //   size: "256x256",
-      // });
-      // const openAiImgUrl = response.data.data[0].url;
-      // console.log("openAiImgUrl", openAiImgUrl);
-      // const openAiJson =
-      // {
-      //   description: inputValue,
-      //   external_url: "https://austingriffith.com/portfolio/paintings/", // <-- this can link to a page for the specific file too
-      //   image: openAiImgUrl,
-      //   name: inputValue,
-      // }
-
+    let openAiJson;
+    if (useOpenAi === true) {
+      if (inputValue === "") {
+        const response = await openai.createImage({
+          //prompt: inputValue + "with Mars in universe as background, profile picture, digital art",
+          prompt: defaultPromt,
+          n: 1,
+          size: "256x256",
+        });
+        const openAiImgUrl = response.data.data[0].url;
+        console.log("openAiImgUrl", openAiImgUrl);
+        openAiJson =
+        {
+          description: defaultPromt,
+          image: openAiImgUrl,
+          name: defaultPromt,
+        }
+      } else {
+        const response = await openai.createImage({
+          //prompt: inputValue + "with Mars in universe as background, profile picture, digital art",
+          prompt: inputValue,
+          n: 1,
+          size: "256x256",
+        });
+        const openAiImgUrl = response.data.data[0].url;
+        console.log("openAiImgUrl", openAiImgUrl);
+        openAiJson =
+        {
+          description: inputValue,
+          image: openAiImgUrl,
+          name: inputValue,
+        }
+      }
       ///////////////// save myself 2 cents per test! dang!
       // const openAiJson =
       // {
@@ -558,15 +575,14 @@ function App() {
       //   image: "https://austingriffith.com/images/paintings/buffalo.jpg",
       //   name: inputValue,
       // }
-      ///////////////// save myself 2 cents per test! dang!
-
+      /////////////////
       console.log("openAiJson", openAiJson);
       return openAiJson;
-
     } else {
       return austinJson;
     }
   }
+
 
   const useOpenAi = true;
   const mintItem = async ({ inputValue }) => {
@@ -591,6 +607,7 @@ function App() {
       update => {
         console.log("📡 Transaction Update:", update);
         if (update && (update.status === "confirmed" || update.status === 1)) {
+          setIsLoading(false);
           console.log(" 🍾 Transaction " + update.hash + " finished!");
           console.log(
             " ⛽️ " +
@@ -604,7 +621,6 @@ function App() {
         }
       },
     );
-    setIsLoading(false);
   };
 
   return (
@@ -634,7 +650,7 @@ function App() {
               Transfers
             </Link>
           </Menu.Item>
-          <Menu.Item key="/ipfsup">
+          {/* <Menu.Item key="/ipfsup">
             <Link
               onClick={() => {
                 setRoute("/ipfsup");
@@ -653,7 +669,7 @@ function App() {
             >
               IPFS Download
             </Link>
-          </Menu.Item>
+          </Menu.Item> */}
           <Menu.Item key="/debugcontracts">
             <Link
               onClick={() => {
@@ -667,13 +683,14 @@ function App() {
         </Menu>
         <Switch>
           <Route exact path="/">
+
             <div style={{ width: 640, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
               {/* <Input type="text" placeholder="What to generate?" value={inputValue} onChange={handleInputChange} maxLength={30} /> */}
               <Input type="text"
-                placeholder="What NFT do you want OpenAI to generate?"
+                placeholder="Describe what NFT you want to create (e.g. a cute cat sitting on laptop)"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                maxLength={30} />
+                maxLength={50} />
               <Button
                 disabled={minting}
                 shape="round"
@@ -685,6 +702,24 @@ function App() {
               >
                 {isLoading ? <PulseLoader size={10} margin={2} /> : 'MINT NFT'}
               </Button>
+            </div>
+            <div style={{ width: 640, margin: "auto" }}>
+              What happens after you click the button?
+              <br></br>
+              Call OpenAI API to generate an image -> Upload it to IPFS -> Mint it as NFT
+              <br></br>
+              So please be patient as it will takes a few seconds to finish those work :)
+              <br></br>
+              This is deployed to Ethererum Sepolia TESTNET. You need TEST ETH on Sepolia to play with it.
+              <br></br>
+              <br></br>
+              Every time you click on the button, I pay 2 cents for calling OpenAI API.
+              <br></br>
+              I won't go broke if you generate a bunch, but please don't spam it :)
+              <br></br>
+              <br></br>
+              scaffold-eth is an awesome tool
+              <br></br>
             </div>
             <div style={{ width: 640, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
               <List
