@@ -708,7 +708,7 @@ function App() {
               <br></br>
               Call OpenAI API to generate an image -> Upload it to IPFS -> Mint it as NFT
               <br></br>
-              So please be patient as it will takes a few seconds to finish those work :)
+              So please be patient as it takes a few seconds to finish those work :)
               <br></br>
               This is deployed to Ethererum Sepolia TESTNET. You need TEST ETH on Sepolia to play with it.
               <br></br>

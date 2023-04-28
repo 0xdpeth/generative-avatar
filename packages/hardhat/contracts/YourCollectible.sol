@@ -19,7 +19,7 @@ contract YourCollectible is
 
     //uint256 public mintPrice = 0.1 ether;
 
-    constructor() ERC721("GenerativeAvatar", "gAvatar") {}
+    constructor() ERC721("GenerativeNFT", "gNFT") {}
 
     function _baseURI() internal pure override returns (string memory) {
         return "https://ipfs.io/ipfs/";
