@@ -710,7 +710,7 @@ function App() {
               <br></br>
               So please be patient as it takes a few seconds to finish those work :)
               <br></br>
-              This is deployed to Ethererum Sepolia TESTNET. You need TEST ETH on Sepolia to play with it.
+              This is deployed to Ethereum Sepolia TESTNET. You need TEST ETH on Sepolia to play with it.
               <br></br>
               <br></br>
               Every time you click on the button, I pay 2 cents for calling OpenAI API.
