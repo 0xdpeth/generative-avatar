@@ -531,16 +531,13 @@ function App() {
   // set useOpenAi as false to save cost in testing mode
   const useOpenAi = true;
 
-  // handle corner case where user presses mint button without entering any input
-  const defaultInput = "a cute cat sitting on laptop";
-  if (inputValue === "") {
-    setInputValue(defaultInput)
-  }
 
+  const defaultInput = "a cute cat sitting on laptop";
+  const prompt = inputValue ? inputValue : defaultInput;
   const getJson = async (useOpenAi) => {
-    if (useOpenAi === true) {
+    if (useOpenAi == true) {
       const response = await openai.createImage({
-        prompt: inputValue,  // append some fixed prompt if you want to set a tone for the whole collection
+        prompt: prompt,  // append some fixed prompt if you want to set a tone for the whole collection
         n: 1,
         size: "256x256",
       });
@@ -548,9 +545,9 @@ function App() {
       //console.log("openAiImgUrl", openAiImgUrl);
       const openAiJson =
       {
-        description: inputValue,
+        description: prompt,
         image: openAiImgUrl,
-        name: inputValue,
+        name: prompt,
       }
       return openAiJson;
     } else {
@@ -560,7 +557,6 @@ function App() {
 
   const mintItem = async () => {
     setIsLoading(true);
-
     let uploaded;
     if (useOpenAi == true) {
       const json = await getJson(useOpenAi);
