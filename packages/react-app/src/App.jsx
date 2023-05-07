@@ -17,22 +17,16 @@ import Fortmatic from "fortmatic";
 import React, { useCallback, useEffect, useState } from "react";
 import ReactJson from "react-json-view";
 import { BrowserRouter, Link, Route, Switch } from "react-router-dom";
-//import Torus from "@toruslabs/torus-embed"
 import WalletLink from "walletlink";
 import Web3Modal from "web3modal";
 import "./App.css";
 import { Account, Address, AddressInput, Contract, Faucet, GasGauge, Header, Ramp, ThemeSwitch } from "./components";
-import { INFURA_ID, NETWORK, NETWORKS, austinJson } from "./constants";
+import { INFURA_ID, NETWORK, NETWORKS, AustinsPainting } from "./constants";
 import { Transactor } from "./helpers";
 import { useContractConfig } from "./hooks";
 import { Configuration, OpenAIApi } from "openai";
 import { PulseLoader } from 'react-spinners';
 
-const openAiKey = process.env.REACT_APP_OPENAI_KEY;
-const configuration = new Configuration({
-  apiKey: openAiKey,
-});
-const openai = new OpenAIApi(configuration);
 
 const projectId = "2GajDLTC6y04qsYsoDRq9nGmWwK";
 const projectSecret = "48c62c6b3f82d2ecfa2cbe4c90f97037";
@@ -49,6 +43,13 @@ const ipfs = ipfsAPI({
 });
 
 const { ethers } = require("ethers");
+
+// authenticate OpenAI with OpenAI Key
+const openAiKey = process.env.REACT_APP_OPENAI_KEY;
+const configuration = new Configuration({
+  apiKey: openAiKey,
+});
+const openai = new OpenAIApi(configuration);
 
 /*
     Welcome to 🏗 scaffold-eth !
@@ -69,10 +70,9 @@ const { ethers } = require("ethers");
     (and then use the `useExternalContractLoader()` hook!)
 */
 
-/// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS.sepolia; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
-// 😬 Sorry for all the console logging
+const targetNetwork = NETWORKS.localhost;
+
 const DEBUG = true;
 const NETWORKCHECK = true;
 
@@ -211,11 +211,7 @@ function App() {
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
   const [inputValue, setInputValue] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-
-  // function handleInputChange(event) {
-  //   setInputValue(event.target.value);
-  // }
+  const [isLoading, setIsLoading] = useState(false);  // for adding a little PulseLoader for user because mint takes a few seconds
 
   const logoutOfWeb3Modal = async () => {
     await web3Modal.clearCachedProvider();
@@ -532,60 +528,38 @@ function App() {
   const [minting, setMinting] = useState(false);
   const [count, setCount] = useState(1);
 
-  const defaultPromt = "a cute cat sitting on laptop";
-  // the json for the nfts
+  // set useOpenAi as false to save cost in testing mode
+  const useOpenAi = false;
+
+  // handle corner case where user presses mint button without entering any input
+  const defaultInput = "a cute cat sitting on laptop";
+
+
   const getJson = async (useOpenAi) => {
-    let openAiJson;
     if (useOpenAi === true) {
       if (inputValue === "") {
-        const response = await openai.createImage({
-          //prompt: inputValue + "with Mars in universe as background, profile picture, digital art",
-          prompt: defaultPromt,
-          n: 1,
-          size: "256x256",
-        });
-        const openAiImgUrl = response.data.data[0].url;
-        console.log("openAiImgUrl", openAiImgUrl);
-        openAiJson =
-        {
-          description: defaultPromt,
-          image: openAiImgUrl,
-          name: defaultPromt,
-        }
-      } else {
-        const response = await openai.createImage({
-          //prompt: inputValue + "with Mars in universe as background, profile picture, digital art",
-          prompt: inputValue,
-          n: 1,
-          size: "256x256",
-        });
-        const openAiImgUrl = response.data.data[0].url;
-        console.log("openAiImgUrl", openAiImgUrl);
-        openAiJson =
-        {
-          description: inputValue,
-          image: openAiImgUrl,
-          name: inputValue,
-        }
+        setInputValue(defaultInput)
       }
-      ///////////////// save myself 2 cents per test! dang!
-      // const openAiJson =
-      // {
-      //   description: inputValue,
-      //   image: "https://austingriffith.com/images/paintings/buffalo.jpg",
-      //   name: inputValue,
-      // }
-      /////////////////
-      console.log("openAiJson", openAiJson);
+      const response = await openai.createImage({
+        prompt: inputValue,  // append some fixed prompt if you want to set a tone for the whole collection
+        n: 1,
+        size: "256x256",
+      });
+      const openAiImgUrl = response.data.data[0].url;
+      //console.log("openAiImgUrl", openAiImgUrl);
+      const openAiJson =
+      {
+        description: inputValue,
+        image: openAiImgUrl,
+        name: inputValue,
+      }
       return openAiJson;
     } else {
-      return austinJson;
+      return AustinsPainting;
     }
   }
 
-
-  const useOpenAi = true;
-  const mintItem = async ({ inputValue }) => {
+  const mintItem = async () => {
     setIsLoading(true);
     let uploaded;
     if (useOpenAi == true) {
@@ -596,7 +570,6 @@ function App() {
       const json = await getJson(useOpenAi);
       uploaded = await ipfs.add(JSON.stringify(json[count]));
     }
-
     setCount(count + 1);
     console.log("Uploaded Hash: ", uploaded);
     console.log("uploaded", uploaded);
@@ -687,7 +660,7 @@ function App() {
             <div style={{ width: 640, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
               {/* <Input type="text" placeholder="What to generate?" value={inputValue} onChange={handleInputChange} maxLength={30} /> */}
               <Input type="text"
-                placeholder="Describe what NFT you want to create (e.g. a cute cat sitting on laptop)"
+                placeholder="Describe what NFT you'd like to create (e.g. a cute cat sitting on a laptop)"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 maxLength={50} />
@@ -696,30 +669,45 @@ function App() {
                 shape="round"
                 size="large"
                 onClick={() => {
-                  mintItem(inputValue);
-                  console.log("input value", inputValue);
+                  mintItem();
+                  // console.log("input value", inputValue);
                 }}
               >
                 {isLoading ? <PulseLoader size={10} margin={2} /> : 'MINT NFT'}
               </Button>
             </div>
+
             <div style={{ width: 640, margin: "auto" }}>
+
+              This dApp is deployed on Ethereum Sepolia TESTNET. You need TEST ETH to play with it.
+              <br />
+              <br />
+
               What happens after you click the button?
-              <br></br>
-              Call OpenAI API to generate an image -> Upload it to IPFS -> Mint it as NFT
-              <br></br>
-              So please be patient as it takes a few seconds to finish those work :)
-              <br></br>
-              This is deployed to Ethereum Sepolia TESTNET. You need TEST ETH on Sepolia to play with it.
-              <br></br>
-              <br></br>
+              <br />
+
+              Step 1. Call OpenAI (DALL·E) API to generate an image and grab its URL.
+              <br />
+
+              Step 2. Call IPFS API to add the content (name, image URL and descrption) to IPFS network.
+
+              <br />
+              Step 3. Send a transaction to blockchain and set the content-addressed hash as the token URI.
+
+
+
+              <br />
+              So please be patient as it takes a few seconds to finish those work 🤓
+              <br />
+
+              <br />
               Every time you click on the button, I pay 2 cents for calling OpenAI API.
-              <br></br>
+              <br />
               I won't go broke if you generate a bunch, but please don't spam it :)
-              <br></br>
-              <br></br>
-              scaffold-eth is an awesome tool
-              <br></br>
+              <br />
+              <br />
+              scaffold-eth is an awesome tool for dApp development. Shout out to Austint Griffith 🏗
+
             </div>
             <div style={{ width: 640, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
               <List
@@ -912,7 +900,13 @@ function App() {
           <Col span={8} style={{ textAlign: "center", opacity: 1 }}>
             <Button
               onClick={() => {
-                window.open("https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA");
+                const popupText = 'The local faucet below is only for testing in local environment. :)   If you can\'t get test ETH on Sepolia from other public faucets, send an email to keweichen at gmail dot com';
+                const width = 400;
+                const height = 300;
+                const left = (window.screen.width / 2) - (width / 2);
+                const top = (window.screen.height / 2) - (height / 2);
+                const popup = window.open('', 'myPopup', `width=${width},height=${height},left=${left},top=${top}`);
+                popup.document.write(`<p>${popupText}</p>`);
               }}
               size="large"
               shape="round"

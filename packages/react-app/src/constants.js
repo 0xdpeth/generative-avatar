@@ -202,7 +202,7 @@ export const NETWORK = chainId => {
 };
 
 
-export const austinJson = {
+export const AustinsPainting = {
   1: {
     description: "It's actually a bison?",
     external_url: "https://austingriffith.com/portfolio/paintings/", // <-- this can link to a page for the specific file too

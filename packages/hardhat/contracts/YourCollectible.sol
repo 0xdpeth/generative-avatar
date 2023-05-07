@@ -17,7 +17,7 @@ contract YourCollectible is
 
     Counters.Counter private _tokenIdCounter;
 
-    //uint256 public mintPrice = 0.1 ether;
+    //uint256 public mintPrice = 0.1 ether; // testing mint price
 
     constructor() ERC721("GenerativeNFT", "gNFT") {}
 
@@ -29,17 +29,15 @@ contract YourCollectible is
         address to,
         string memory uri
     ) public payable returns (uint256) {
-        //require(mintPrice <= msg.value, "Ether value sent is not correct");
+        //require(mintPrice <= msg.value, "Ether value sent is not correct");  // testing mint price
         _tokenIdCounter.increment();
         uint256 tokenId = _tokenIdCounter.current();
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
-
         return tokenId;
     }
 
     // The following functions are overrides required by Solidity.
-
     function _beforeTokenTransfer(
         address from,
         address to,
