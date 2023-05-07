@@ -5,8 +5,8 @@ import React from "react";
 
 export default function Header() {
   return (
-    <a href="https://github.com/austintgriffith/scaffold-eth" target="_blank" rel="noopener noreferrer">
-      <PageHeader title="(Everyone is talking about generative AI so how about) Generative NFT" style={{ cursor: "pointer" }} />
-    </a>
+    // <a href="https://github.com/austintgriffith/scaffold-eth" target="_blank" rel="noopener noreferrer">
+    <PageHeader title="(Everyone is talking about generative AI so how about) Generative NFT" style={{ cursor: "pointer" }} />
+    // </a>
   );
 }

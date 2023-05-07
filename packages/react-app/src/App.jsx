@@ -706,7 +706,7 @@ function App() {
               I won't go broke if you generate a bunch, but please don't spam it :)
               <br />
               <br />
-              scaffold-eth is an awesome tool for dApp development. Shout out to Austint Griffith 🏗
+              <a href="https://github.com/austintgriffith/scaffold-eth" target="_blank" rel="noopener noreferrer">scaffold-eth</a> is an awesome tool for dApp development. Shout out to Austin Griffith 🏗
 
             </div>
             <div style={{ width: 640, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
